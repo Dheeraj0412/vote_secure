@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Voters{% endblock %}
+
+{% block content %}
+<div class="page-header admin-header">
+  <div class="container">
+    <h1 class="page-title"><i class="bi bi-people me-2"></i>Registered Voters</h1>
+    <p class="page-sub mb-0">{{ voters|length }} voter(s) registered in total.</p>
+  </div>
+</div>
+
+<div class="container py-4">
+  <div class="section-card">
+    <div class="table-responsive">
+      {% if voters %}
+      <table class="table vs-table mb-0">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Registered</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for v in voters %}
+          <tr>
+            <td class="text-muted">{{ loop.index }}</td>
+            <td><i class="bi bi-person-circle me-1 text-muted"></i>{{ v.username }}</td>
+            <td class="text-muted">{{ v.email }}</td>
+            <td class="text-muted small">{{ v.created_at.strftime('%d %b %Y, %H:%M') }}</td>
+            <td>
+              {% if v.has_voted() %}
+                <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Voted</span>
+              {% else %}
+                <span class="badge bg-secondary"><i class="bi bi-clock me-1"></i>Pending</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div class="empty-state py-5">
+        <i class="bi bi-people"></i>
+        <p>No voters registered yet.</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="text-center mt-4">
+    <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline-secondary">
+      <i class="bi bi-arrow-left me-1"></i>Back to Dashboard
+    </a>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% block title %}Vote{% endblock %}
+
+{% block content %}
+<div class="page-header voter-header">
+  <div class="container">
+    <h1 class="page-title">
+      <i class="bi bi-card-checklist me-2"></i>
+      {% if user.has_voted() %}Your Ballot{% else %}Cast Your Vote{% endif %}
+    </h1>
+    <p class="page-sub mb-0">
+      {% if user.has_voted() %}
+        You have already voted. Thank you for participating!
+      {% else %}
+        Select one candidate and submit your ballot. This action cannot be undone.
+      {% endif %}
+    </p>
+  </div>
+</div>
+
+<div class="container py-4">
+
+  {% if user.has_voted() %}
+  <!-- Already Voted State -->
+  <div class="voted-confirmation text-center py-5">
+    <div class="voted-icon"><i class="bi bi-patch-check-fill"></i></div>
+    <h3>Vote Recorded!</h3>
+    <p class="text-muted mb-4">Your vote has been securely recorded. Results will be announced once the election closes.</p>
+    <a href="{{ url_for('voter.results') }}" class="btn btn-primary px-5">
+      <i class="bi bi-bar-chart-line me-2"></i>View Live Results
+    </a>
+  </div>
+
+  {% elif candidates %}
+  <!-- Voting Form -->
+  <form method="POST" action="{{ url_for('voter.cast_vote') }}" id="voteForm">
+    <div class="row g-4 mb-4">
+      {% for c in candidates %}
+      <div class="col-md-6 col-lg-4">
+        <label class="candidate-card" for="c{{ c.id }}">
+          <input type="radio" name="candidate_id" id="c{{ c.id }}"
+                 value="{{ c.id }}" class="candidate-radio" required/>
+          <div class="candidate-card-inner">
+            <div class="candidate-avatar">
+              {{ c.name[0].upper() }}
+            </div>
+            <div class="candidate-info">
+              <h5 class="candidate-name">{{ c.name }}</h5>
+              <span class="party-badge">{{ c.party }}</span>
+              {% if c.description %}
+              <p class="candidate-desc">{{ c.description }}</p>
+              {% endif %}
+            </div>
+            <div class="candidate-check"><i class="bi bi-check-circle-fill"></i></div>
+          </div>
+        </label>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="vote-submit-bar">
+      <p class="text-muted mb-3">
+        <i class="bi bi-exclamation-circle me-1"></i>
+        Once submitted, your vote cannot be changed.
+      </p>
+      <button type="submit" class="btn btn-primary btn-lg px-5"
+              id="submitVoteBtn" disabled>
+        <i class="bi bi-send-check me-2"></i>Submit My Vote
+      </button>
+    </div>
+  </form>
+
+  {% else %}
+  <div class="empty-state py-5">
+    <i class="bi bi-person-x"></i>
+    <p>No candidates have been added yet. Please check back later.</p>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Enable submit button only when a candidate is selected
+  const radios = document.querySelectorAll('.candidate-radio');
+  const btn    = document.getElementById('submitVoteBtn');
+
+  radios.forEach(r => {
+    r.addEventListener('change', () => {
+      if (btn) btn.disabled = false;
+    });
+  });
+
+  // Confirm before submitting
+  const form = document.getElementById('voteForm');
+  if (form) {
+    form.addEventListener('submit', function (e) {
+      const chosen = document.querySelector('.candidate-radio:checked');
+      const label  = chosen
+        ? document.querySelector(`label[for="${chosen.id}"] .candidate-name`).textContent
+        : '';
+      if (!confirm(`Confirm your vote for: ${label}\n\nThis cannot be undone.`)) {
+        e.preventDefault();
+      }
+    });
+  }
+</script>
+{% endblock %}

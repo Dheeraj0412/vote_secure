@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="page-header admin-header">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+      <div>
+        <h1 class="page-title"><i class="bi bi-speedometer2 me-2"></i>Admin Dashboard</h1>
+        <p class="page-sub mb-0">Manage the election from start to finish.</p>
+      </div>
+      <a href="{{ url_for('admin.add_candidate') }}" class="btn btn-primary">
+        <i class="bi bi-plus-circle me-2"></i>Add Candidate
+      </a>
+    </div>
+  </div>
+</div>
+
+<div class="container py-4">
+
+  <!-- Stats Row -->
+  <div class="row g-4 mb-5">
+    <div class="col-sm-6 col-xl-3">
+      <div class="stat-card stat-blue">
+        <div class="stat-icon"><i class="bi bi-people-fill"></i></div>
+        <div class="stat-body">
+          <div class="stat-value">{{ total_voters }}</div>
+          <div class="stat-label">Registered Voters</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+      <div class="stat-card stat-green">
+        <div class="stat-icon"><i class="bi bi-person-badge"></i></div>
+        <div class="stat-body">
+          <div class="stat-value">{{ total_candidates }}</div>
+          <div class="stat-label">Candidates</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+      <div class="stat-card stat-orange">
+        <div class="stat-icon"><i class="bi bi-check2-square"></i></div>
+        <div class="stat-body">
+          <div class="stat-value">{{ total_votes }}</div>
+          <div class="stat-label">Votes Cast</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+      <div class="stat-card stat-purple">
+        <div class="stat-icon"><i class="bi bi-percent"></i></div>
+        <div class="stat-body">
+          <div class="stat-value">{{ turnout }}%</div>
+          <div class="stat-label">Voter Turnout</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Candidates Table -->
+  <div class="section-card">
+    <div class="section-card-header d-flex justify-content-between align-items-center">
+      <h5 class="mb-0"><i class="bi bi-person-lines-fill me-2"></i>Candidates</h5>
+      <a href="{{ url_for('admin.add_candidate') }}" class="btn btn-sm btn-primary">
+        <i class="bi bi-plus"></i> Add
+      </a>
+    </div>
+    <div class="table-responsive">
+      {% if candidates %}
+      <table class="table vs-table mb-0">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Party</th>
+            <th>Description</th>
+            <th>Votes</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in candidates %}
+          <tr>
+            <td class="text-muted">{{ loop.index }}</td>
+            <td><strong>{{ c.name }}</strong></td>
+            <td><span class="party-badge">{{ c.party }}</span></td>
+            <td class="text-muted small">{{ c.description[:60] }}{% if c.description|length > 60 %}…{% endif %}</td>
+            <td>
+              <span class="vote-pill">{{ c.vote_count }}</span>
+            </td>
+            <td class="text-end">
+              <a href="{{ url_for('admin.edit_candidate', cid=c.id) }}"
+                 class="btn btn-sm btn-outline-secondary me-1">
+                <i class="bi bi-pencil"></i>
+              </a>
+              {% if c.vote_count == 0 %}
+              <form method="POST"
+                    action="{{ url_for('admin.delete_candidate', cid=c.id) }}"
+                    class="d-inline confirm-delete">
+                <button type="submit" class="btn btn-sm btn-outline-danger">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </form>
+              {% else %}
+              <button class="btn btn-sm btn-outline-danger" disabled title="Cannot delete — has votes">
+                <i class="bi bi-trash"></i>
+              </button>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div class="empty-state py-5">
+        <i class="bi bi-person-slash"></i>
+        <p>No candidates yet. <a href="{{ url_for('admin.add_candidate') }}">Add the first one.</a></p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Quick Links -->
+  <div class="row g-3 mt-2">
+    <div class="col-md-6">
+      <a href="{{ url_for('admin.results') }}" class="quick-link-card">
+        <i class="bi bi-bar-chart-line-fill"></i>
+        <span>View Full Results</span>
+        <i class="bi bi-arrow-right ms-auto"></i>
+      </a>
+    </div>
+    <div class="col-md-6">
+      <a href="{{ url_for('admin.voters') }}" class="quick-link-card">
+        <i class="bi bi-people-fill"></i>
+        <span>View All Voters</span>
+        <i class="bi bi-arrow-right ms-auto"></i>
+      </a>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

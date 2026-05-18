@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Results{% endblock %}
+
+{% block content %}
+<div class="page-header voter-header">
+  <div class="container">
+    <h1 class="page-title"><i class="bi bi-bar-chart-line me-2"></i>Live Results</h1>
+    <p class="page-sub mb-0">{{ total_votes }} vote(s) counted so far.</p>
+  </div>
+</div>
+
+<div class="container py-4">
+
+  {% if winner and total_votes > 0 %}
+  <div class="winner-banner mb-5">
+    <div class="winner-crown"><i class="bi bi-trophy-fill"></i></div>
+    <div>
+      <div class="winner-label">Current Leader</div>
+      <div class="winner-name">{{ winner.name }}</div>
+      <div class="winner-party">{{ winner.party }}</div>
+    </div>
+    <div class="winner-votes">
+      <span class="winner-count">{{ winner.vote_count }}</span>
+      <span class="winner-v-label">votes</span>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if results_data %}
+  <div class="section-card">
+    <div class="section-card-header">
+      <h5 class="mb-0"><i class="bi bi-list-ol me-2"></i>All Candidates</h5>
+    </div>
+    {% for item in results_data %}
+    <div class="result-row {% if loop.first and total_votes > 0 %}result-row-winner{% endif %}">
+      <div class="result-rank">#{{ loop.index }}</div>
+      <div class="result-info">
+        <div class="result-name">{{ item.candidate.name }}</div>
+        <div class="result-party">{{ item.candidate.party }}</div>
+        <div class="result-bar-wrap">
+          <div class="result-bar" style="width: {{ item.percentage }}%"
+               data-width="{{ item.percentage }}"></div>
+        </div>
+      </div>
+      <div class="result-stats">
+        <div class="result-votes">{{ item.votes }}</div>
+        <div class="result-pct">{{ item.percentage }}%</div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state py-5">
+    <i class="bi bi-bar-chart"></i>
+    <p>No candidates or votes yet.</p>
+  </div>
+  {% endif %}
+
+  <div class="text-center mt-4">
+    <a href="{{ url_for('voter.dashboard') }}" class="btn btn-outline-secondary">
+      <i class="bi bi-arrow-left me-1"></i>Back to Ballot
+    </a>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VoteSystem — Database Viewer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0a0d14;
+      --surface: #111620;
+      --surface2: #181e2e;
+      --border: #1e2740;
+      --accent: #3b82f6;
+      --accent2: #6366f1;
+      --green: #22c55e;
+      --yellow: #eab308;
+      --red: #ef4444;
+      --text: #e2e8f0;
+      --muted: #64748b;
+      --mono: 'JetBrains Mono', monospace;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Space Grotesk', sans-serif;
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 60px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 1.05rem;
+      letter-spacing: -0.3px;
+    }
+    .logo-icon {
+      width: 30px;
+      height: 30px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      font-size: 14px;
+    }
+    .badge {
+      background: rgba(59,130,246,.15);
+      color: var(--accent);
+      border: 1px solid rgba(59,130,246,.3);
+      border-radius: 20px;
+      padding: 2px 10px;
+      font-size: .72rem;
+      font-weight: 600;
+      letter-spacing: .5px;
+      font-family: var(--mono);
+    }
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .live-dot {
+      width: 8px; height: 8px;
+      background: var(--green);
+      border-radius: 50%;
+      box-shadow: 0 0 0 3px rgba(34,197,94,.2);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%,100% { box-shadow: 0 0 0 3px rgba(34,197,94,.2); }
+      50%      { box-shadow: 0 0 0 6px rgba(34,197,94,.05); }
+    }
+
+    /* ── Layout ── */
+    .page {
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    /* ── Tab Bar ── */
+    .tabs {
+      display: flex;
+      gap: 4px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 4px;
+      margin-bottom: 2rem;
+      width: fit-content;
+    }
+    .tab {
+      padding: 8px 20px;
+      border-radius: 9px;
+      border: none;
+      cursor: pointer;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: .85rem;
+      font-weight: 500;
+      color: var(--muted);
+      background: transparent;
+      transition: all .2s;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .tab:hover { color: var(--text); background: var(--surface2); }
+    .tab.active {
+      background: linear-gradient(135deg, rgba(59,130,246,.2), rgba(99,102,241,.2));
+      color: var(--accent);
+      border: 1px solid rgba(59,130,246,.3);
+    }
+    .tab-count {
+      background: rgba(255,255,255,.08);
+      border-radius: 10px;
+      padding: 1px 7px;
+      font-size: .7rem;
+      font-family: var(--mono);
+    }
+    .tab.active .tab-count { background: rgba(59,130,246,.25); color: var(--accent); }
+
+    /* ── Stats Row ── */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.2rem 1.4rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+    }
+    .stat-card.blue::before  { background: var(--accent); }
+    .stat-card.purple::before{ background: var(--accent2); }
+    .stat-card.green::before { background: var(--green); }
+    .stat-card.yellow::before{ background: var(--yellow); }
+    .stat-label { font-size: .75rem; color: var(--muted); font-weight: 500; letter-spacing: .5px; text-transform: uppercase; margin-bottom: .5rem; }
+    .stat-value { font-size: 2rem; font-weight: 700; font-family: var(--mono); }
+    .stat-card.blue   .stat-value { color: var(--accent); }
+    .stat-card.purple .stat-value { color: var(--accent2); }
+    .stat-card.green  .stat-value { color: var(--green); }
+    .stat-card.yellow .stat-value { color: var(--yellow); }
+    .stat-sub { font-size: .72rem; color: var(--muted); margin-top: .3rem; }
+
+    /* ── Panel ── */
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+    .panel-head {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .panel-title {
+      font-size: .85rem;
+      font-weight: 600;
+      letter-spacing: .5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .panel-title span { color: var(--text); }
+
+    /* ── Table ── */
+    table { width: 100%; border-collapse: collapse; }
+    thead tr { background: var(--surface2); }
+    th {
+      padding: .75rem 1.5rem;
+      text-align: left;
+      font-size: .72rem;
+      font-weight: 600;
+      letter-spacing: .8px;
+      text-transform: uppercase;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+    }
+    td {
+      padding: .9rem 1.5rem;
+      border-bottom: 1px solid rgba(30,39,64,.5);
+      font-size: .88rem;
+    }
+    tbody tr { transition: background .15s; }
+    tbody tr:hover { background: rgba(255,255,255,.02); }
+    tbody tr:last-child td { border-bottom: none; }
+
+    .mono { font-family: var(--mono); font-size: .82rem; color: var(--muted); }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: .75rem;
+      font-weight: 600;
+      border: 1px solid transparent;
+    }
+    .pill.voted   { background: rgba(34,197,94,.1);  color: var(--green);  border-color: rgba(34,197,94,.3); }
+    .pill.pending { background: rgba(234,179,8,.1);  color: var(--yellow); border-color: rgba(234,179,8,.3); }
+    .pill.admin   { background: rgba(99,102,241,.1); color: #a5b4fc;       border-color: rgba(99,102,241,.3); }
+    .pill.voter   { background: rgba(59,130,246,.1); color: #93c5fd;       border-color: rgba(59,130,246,.3); }
+
+    /* ── Vote Bar ── */
+    .bar-wrap { display: flex; align-items: center; gap: 10px; }
+    .bar-bg { flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width 1s ease; }
+    .bar-pct { font-family: var(--mono); font-size: .78rem; color: var(--muted); min-width: 38px; text-align: right; }
+
+    /* ── Section toggle ── */
+    .section { display: none; }
+    .section.active { display: block; }
+
+    /* ── Refresh button ── */
+    .btn-refresh {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: .8rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all .2s;
+    }
+    .btn-refresh:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-refresh svg { transition: transform .4s; }
+    .btn-refresh.spinning svg { transform: rotate(360deg); }
+
+    /* ── Empty state ── */
+    .empty {
+      padding: 3rem;
+      text-align: center;
+      color: var(--muted);
+    }
+    .empty-icon { font-size: 2.5rem; margin-bottom: .75rem; }
+
+    /* ── Winner badge ── */
+    .crown { font-size: 1rem; margin-right: 4px; }
+    .winner-row td:first-child { position: relative; }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    /* ── Loading skeleton ── */
+    .skeleton {
+      background: linear-gradient(90deg, var(--surface2) 25%, var(--border) 50%, var(--surface2) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 4px;
+      height: 14px;
+    }
+    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+    .loading-rows td { padding: .9rem 1.5rem; }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: .75rem 1.2rem;
+      font-size: .85rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 8px 30px rgba(0,0,0,.4);
+      transform: translateY(20px);
+      opacity: 0;
+      transition: all .3s ease;
+      z-index: 999;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.success { border-color: rgba(34,197,94,.4); }
+    .toast.error   { border-color: rgba(239,68,68,.4); }
+
+    @media (max-width: 768px) {
+      .stats { grid-template-columns: repeat(2,1fr); }
+      .tabs { flex-wrap: wrap; }
+      .page { padding: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">🗳️</div>
+    VoteSystem <span class="badge">DB VIEWER</span>
+  </div>
+  <div class="header-right">
+    <div class="live-dot"></div>
+    <span style="font-size:.8rem;color:var(--muted)">Live Data</span>
+  </div>
+</header>
+
+<div class="page">
+
+  <!-- Stats -->
+  <div class="stats" id="statsRow">
+    <div class="stat-card blue">
+      <div class="stat-label">Total Users</div>
+      <div class="stat-value" id="s-users">—</div>
+      <div class="stat-sub">Registered voters + admin</div>
+    </div>
+    <div class="stat-card purple">
+      <div class="stat-label">Candidates</div>
+      <div class="stat-value" id="s-cands">—</div>
+      <div class="stat-sub">Standing for election</div>
+    </div>
+    <div class="stat-card green">
+      <div class="stat-label">Votes Cast</div>
+      <div class="stat-value" id="s-votes">—</div>
+      <div class="stat-sub">Total ballots recorded</div>
+    </div>
+    <div class="stat-card yellow">
+      <div class="stat-label">Turnout</div>
+      <div class="stat-value" id="s-turnout">—</div>
+      <div class="stat-sub">Voter participation</div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('users', this)">
+      👤 Users <span class="tab-count" id="tc-users">0</span>
+    </button>
+    <button class="tab" onclick="switchTab('candidates', this)">
+      🏅 Candidates <span class="tab-count" id="tc-cands">0</span>
+    </button>
+    <button class="tab" onclick="switchTab('votes', this)">
+      🗳️ Votes <span class="tab-count" id="tc-votes">0</span>
+    </button>
+    <button class="tab" onclick="switchTab('results', this)">
+      📊 Results <span class="tab-count" id="tc-results">0</span>
+    </button>
+  </div>
+
+  <!-- USERS -->
+  <div class="section active" id="sec-users">
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-title">🗂️ <span>users</span> table</div>
+        <button class="btn-refresh" onclick="loadAll()">
+          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+          Refresh
+        </button>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th><th>Username</th><th>Email</th><th>Role</th><th>Voted</th><th>Registered</th>
+          </tr>
+        </thead>
+        <tbody id="users-body">
+          <tr class="loading-rows"><td><div class="skeleton" style="width:20px"></div></td><td><div class="skeleton" style="width:80px"></div></td><td><div class="skeleton" style="width:160px"></div></td><td><div class="skeleton" style="width:60px"></div></td><td><div class="skeleton" style="width:60px"></div></td><td><div class="skeleton" style="width:100px"></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- CANDIDATES -->
+  <div class="section" id="sec-candidates">
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-title">🏅 <span>candidates</span> table</div>
+        <button class="btn-refresh" onclick="loadAll()">
+          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+          Refresh
+        </button>
+      </div>
+      <table>
+        <thead>
+          <tr><th>ID</th><th>Name</th><th>Party</th><th>Description</th><th>Added On</th></tr>
+        </thead>
+        <tbody id="candidates-body">
+          <tr class="loading-rows"><td><div class="skeleton" style="width:20px"></div></td><td><div class="skeleton" style="width:100px"></div></td><td><div class="skeleton" style="width:120px"></div></td><td><div class="skeleton" style="width:200px"></div></td><td><div class="skeleton" style="width:100px"></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- VOTES -->
+  <div class="section" id="sec-votes">
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-title">🗳️ <span>votes</span> table (raw ballots)</div>
+        <button class="btn-refresh" onclick="loadAll()">
+          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+          Refresh
+        </button>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Vote ID</th><th>Voter (username)</th><th>Candidate</th><th>Party</th><th>Cast At</th></tr>
+        </thead>
+        <tbody id="votes-body">
+          <tr class="loading-rows"><td><div class="skeleton" style="width:20px"></div></td><td><div class="skeleton" style="width:80px"></div></td><td><div class="skeleton" style="width:100px"></div></td><td><div class="skeleton" style="width:100px"></div></td><td><div class="skeleton" style="width:100px"></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="section" id="sec-results">
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-title">📊 <span>Election Results</span> — live tally</div>
+        <button class="btn-refresh" onclick="loadAll()">
+          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+          Refresh
+        </button>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Rank</th><th>Candidate</th><th>Party</th><th>Votes</th><th>Share</th></tr>
+        </thead>
+        <tbody id="results-body">
+          <tr class="loading-rows"><td><div class="skeleton" style="width:20px"></div></td><td><div class="skeleton" style="width:100px"></div></td><td><div class="skeleton" style="width:120px"></div></td><td><div class="skeleton" style="width:40px"></div></td><td><div class="skeleton" style="width:140px"></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  /* ─── DB path config ─────────────────────────────────────── */
+  // This viewer fetches data from the Flask API endpoints.
+  // Make sure your voting_system Flask app is running.
+  const BASE = 'http://127.0.0.1:5000';
+
+  /* ─── Fetch helpers ──────────────────────────────────────── */
+  async function apiFetch(path) {
+    const r = await fetch(BASE + path, { credentials: 'include' });
+    if (!r.ok) throw new Error(`HTTP ${r.status} from ${path}`);
+    return r.json();
+  }
+
+  /* ─── Toast ──────────────────────────────────────────────── */
+  function showToast(msg, type = 'success') {
+    const t = document.getElementById('toast');
+    t.textContent = (type === 'success' ? '✅ ' : '❌ ') + msg;
+    t.className = `toast ${type} show`;
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
+
+  /* ─── Format date ────────────────────────────────────────── */
+  function fmtDate(d) {
+    if (!d) return '—';
+    return new Date(d).toLocaleString('en-IN', {
+      day: '2-digit', month: 'short', year: 'numeric',
+      hour: '2-digit', minute: '2-digit'
+    });
+  }
+
+  /* ─── State ──────────────────────────────────────────────── */
+  let state = { users: [], candidates: [], votes: [] };
+
+  /* ─── Render Users ───────────────────────────────────────── */
+  function renderUsers(users) {
+    const tb = document.getElementById('users-body');
+    if (!users.length) {
+      tb.innerHTML = `<tr><td colspan="6"><div class="empty"><div class="empty-icon">👥</div>No users registered yet</div></td></tr>`;
+      return;
+    }
+    tb.innerHTML = users.map(u => `
+      <tr>
+        <td class="mono">${u.id}</td>
+        <td><strong>${u.username}</strong></td>
+        <td class="mono" style="color:var(--muted)">${u.email}</td>
+        <td><span class="pill ${u.is_admin ? 'admin' : 'voter'}">${u.is_admin ? '🔑 Admin' : '👤 Voter'}</span></td>
+        <td><span class="pill ${u.has_voted ? 'voted' : 'pending'}">${u.has_voted ? '✓ Voted' : '⏳ Pending'}</span></td>
+        <td class="mono" style="font-size:.78rem;color:var(--muted)">${fmtDate(u.created_at)}</td>
+      </tr>
+    `).join('');
+    document.getElementById('tc-users').textContent = users.length;
+  }
+
+  /* ─── Render Candidates ──────────────────────────────────── */
+  function renderCandidates(candidates) {
+    const tb = document.getElementById('candidates-body');
+    if (!candidates.length) {
+      tb.innerHTML = `<tr><td colspan="5"><div class="empty"><div class="empty-icon">🏅</div>No candidates added yet. Log in as Admin → Add Candidate</div></td></tr>`;
+      return;
+    }
+    tb.innerHTML = candidates.map(c => `
+      <tr>
+        <td class="mono">${c.id}</td>
+        <td><strong>${c.name}</strong></td>
+        <td style="color:#a5b4fc">${c.party}</td>
+        <td style="color:var(--muted);font-size:.82rem;max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${c.description || '—'}</td>
+        <td class="mono" style="font-size:.78rem;color:var(--muted)">${fmtDate(c.created_at)}</td>
+      </tr>
+    `).join('');
+    document.getElementById('tc-cands').textContent = candidates.length;
+  }
+
+  /* ─── Render Votes ───────────────────────────────────────── */
+  function renderVotes(votes) {
+    const tb = document.getElementById('votes-body');
+    if (!votes.length) {
+      tb.innerHTML = `<tr><td colspan="5"><div class="empty"><div class="empty-icon">🗳️</div>No votes cast yet</div></td></tr>`;
+      return;
+    }
+    tb.innerHTML = votes.map(v => `
+      <tr>
+        <td class="mono">#${v.id}</td>
+        <td><strong>${v.voter_username}</strong></td>
+        <td>${v.candidate_name}</td>
+        <td style="color:#a5b4fc">${v.candidate_party}</td>
+        <td class="mono" style="font-size:.78rem;color:var(--muted)">${fmtDate(v.cast_at)}</td>
+      </tr>
+    `).join('');
+    document.getElementById('tc-votes').textContent = votes.length;
+  }
+
+  /* ─── Render Results ─────────────────────────────────────── */
+  function renderResults(candidates, totalVotes) {
+    const tb = document.getElementById('results-body');
+    if (!candidates.length) {
+      tb.innerHTML = `<tr><td colspan="5"><div class="empty"><div class="empty-icon">📊</div>No results yet</div></td></tr>`;
+      return;
+    }
+    const ranked = [...candidates].sort((a,b) => b.vote_count - a.vote_count);
+    tb.innerHTML = ranked.map((c, i) => {
+      const pct = totalVotes ? Math.round(c.vote_count / totalVotes * 1000) / 10 : 0;
+      const medal = i === 0 && totalVotes ? '👑 ' : i === 1 ? '🥈 ' : i === 2 ? '🥉 ' : '';
+      return `
+        <tr>
+          <td class="mono" style="color:var(--muted)">${i + 1}</td>
+          <td><strong>${medal}${c.name}</strong></td>
+          <td style="color:#a5b4fc">${c.party}</td>
+          <td class="mono" style="color:var(--accent);font-weight:600">${c.vote_count}</td>
+          <td>
+            <div class="bar-wrap">
+              <div class="bar-bg"><div class="bar-fill" style="width:${pct}%"></div></div>
+              <div class="bar-pct">${pct}%</div>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
+    document.getElementById('tc-results').textContent = ranked.length;
+  }
+
+  /* ─── Update Stats ───────────────────────────────────────── */
+  function updateStats(users, candidates, votes) {
+    const voterCount = users.filter(u => !u.is_admin).length;
+    const turnout = voterCount ? Math.round(votes.length / voterCount * 1000) / 10 : 0;
+    document.getElementById('s-users').textContent = users.length;
+    document.getElementById('s-cands').textContent = candidates.length;
+    document.getElementById('s-votes').textContent = votes.length;
+    document.getElementById('s-turnout').textContent = turnout + '%';
+  }
+
+  /* ─── Load All ───────────────────────────────────────────── */
+  async function loadAll() {
+    try {
+      const [users, candidates, votes] = await Promise.all([
+        apiFetch('/api/db/users'),
+        apiFetch('/api/db/candidates'),
+        apiFetch('/api/db/votes'),
+      ]);
+      state = { users, candidates, votes };
+      renderUsers(users);
+      renderCandidates(candidates);
+      renderVotes(votes);
+      renderResults(candidates, votes.length);
+      updateStats(users, candidates, votes);
+      showToast('Database refreshed successfully');
+    } catch (e) {
+      showToast('Cannot connect to Flask app at ' + BASE + '. Make sure it is running!', 'error');
+      renderFallback();
+    }
+  }
+
+  /* ─── Fallback (demo mode) ───────────────────────────────── */
+  function renderFallback() {
+    const demoUsers = [
+      { id: 1, username: 'admin', email: 'admin@votesys.com', is_admin: true, has_voted: false, created_at: new Date() },
+      { id: 2, username: 'alice', email: 'alice@example.com', is_admin: false, has_voted: true, created_at: new Date() },
+      { id: 3, username: 'bob',   email: 'bob@example.com',   is_admin: false, has_voted: false, created_at: new Date() },
+    ];
+    const demoCandidates = [
+      { id: 1, name: 'Rahul Sharma', party: 'Progress Party', description: 'Advocate for tech growth', vote_count: 1, created_at: new Date() },
+      { id: 2, name: 'Priya Patel',  party: 'Future Alliance', description: 'Education reformer',       vote_count: 0, created_at: new Date() },
+    ];
+    const demoVotes = [
+      { id: 1, voter_username: 'alice', candidate_name: 'Rahul Sharma', candidate_party: 'Progress Party', cast_at: new Date() }
+    ];
+    renderUsers(demoUsers);
+    renderCandidates(demoCandidates);
+    renderVotes(demoVotes);
+    renderResults(demoCandidates, 1);
+    updateStats(demoUsers, demoCandidates, demoVotes);
+    showToast('Showing demo data — Flask app not found', 'error');
+  }
+
+  /* ─── Tab switch ─────────────────────────────────────────── */
+  function switchTab(name, btn) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('sec-' + name).classList.add('active');
+    btn.classList.add('active');
+  }
+
+  /* ─── Init ───────────────────────────────────────────────── */
+  loadAll();
+  setInterval(loadAll, 30000); // auto-refresh every 30s
+</script>
+
+<!-- 
+  ═══════════════════════════════════════════════════════════════
+  IMPORTANT: To make this work, add these API routes to your
+  voting_system Flask app (routes/main.py):
+
+  @main_bp.route('/api/db/users')
+  def api_users():
+      from models import User
+      from flask import jsonify
+      users = User.query.all()
+      return jsonify([{
+          'id': u.id, 'username': u.username, 'email': u.email,
+          'is_admin': u.is_admin, 'has_voted': u.has_voted(),
+          'created_at': u.created_at.isoformat() if u.created_at else None
+      } for u in users])
+
+  @main_bp.route('/api/db/candidates')
+  def api_candidates():
+      from models import Candidate
+      from flask import jsonify
+      cands = Candidate.query.all()
+      return jsonify([{
+          'id': c.id, 'name': c.name, 'party': c.party,
+          'description': c.description, 'vote_count': c.vote_count,
+          'created_at': c.created_at.isoformat() if c.created_at else None
+      } for c in cands])
+
+  @main_bp.route('/api/db/votes')
+  def api_votes():
+      from models import Vote
+      from flask import jsonify
+      votes = Vote.query.all()
+      return jsonify([{
+          'id': v.id, 'voter_username': v.voter.username,
+          'candidate_name': v.candidate.name,
+          'candidate_party': v.candidate.party,
+          'cast_at': v.cast_at.isoformat() if v.cast_at else None
+      } for v in votes])
+  ═══════════════════════════════════════════════════════════════
+-->
+</body>
+</html>

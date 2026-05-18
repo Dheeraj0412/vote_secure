@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block title %}Welcome{% endblock %}
+
+{% block content %}
+<!-- Hero -->
+<section class="hero-section">
+  <div class="hero-bg-shapes">
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+    <div class="shape shape-3"></div>
+  </div>
+  <div class="container text-center position-relative">
+    <div class="hero-badge mb-3">
+      <i class="bi bi-shield-check"></i> Trusted Election Platform
+    </div>
+    <h1 class="hero-title">Your Voice.<br>Your Vote.</h1>
+    <p class="hero-sub">
+      A secure, transparent, and tamper-proof online voting platform —<br class="d-none d-md-block"/>
+      built for student organisations, clubs, and small elections.
+    </p>
+    <div class="hero-cta d-flex gap-3 justify-content-center flex-wrap">
+      <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg px-5">
+        <i class="bi bi-person-plus me-2"></i>Get Started
+      </a>
+      <a href="{{ url_for('auth.login') }}" class="btn btn-outline-light btn-lg px-5">
+        <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Features -->
+<section class="features-section">
+  <div class="container">
+    <h2 class="section-title text-center mb-5">Why VoteSecure?</h2>
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="feature-card">
+          <div class="feature-icon"><i class="bi bi-lock-fill"></i></div>
+          <h5>One Person, One Vote</h5>
+          <p>Database-enforced uniqueness guarantees no voter can cast more than one ballot, ever.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="feature-card">
+          <div class="feature-icon"><i class="bi bi-eye-fill"></i></div>
+          <h5>Real-Time Results</h5>
+          <p>Live tallies with percentage bars so you can watch the election unfold in real time.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="feature-card">
+          <div class="feature-icon"><i class="bi bi-gear-fill"></i></div>
+          <h5>Admin Control Panel</h5>
+          <p>Full candidate management, voter overview, and election statistics — all in one place.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="feature-card">
+          <div class="feature-icon"><i class="bi bi-person-badge-fill"></i></div>
+          <h5>Secure Registration</h5>
+          <p>Bcrypt-hashed passwords and session-based authentication protect every account.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="feature-card">
+          <div class="feature-icon"><i class="bi bi-database-fill-check"></i></div>
+          <h5>SQLite Persistence</h5>
+          <p>Lightweight yet reliable — all data lives in a structured database with no external dependencies.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="feature-card">
+          <div class="feature-icon"><i class="bi bi-phone-fill"></i></div>
+          <h5>Responsive Design</h5>
+          <p>Works beautifully on desktop, tablet, and mobile — vote from anywhere, any device.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- How It Works -->
+<section class="how-section">
+  <div class="container">
+    <h2 class="section-title text-center mb-5">How It Works</h2>
+    <div class="row align-items-center g-5">
+      <div class="col-md-6">
+        <ol class="steps-list">
+          <li>
+            <span class="step-num">01</span>
+            <div>
+              <strong>Register</strong> your account with a unique username and email.
+            </div>
+          </li>
+          <li>
+            <span class="step-num">02</span>
+            <div>
+              <strong>Log in</strong> securely — your session is encrypted and time-limited.
+            </div>
+          </li>
+          <li>
+            <span class="step-num">03</span>
+            <div>
+              <strong>Browse</strong> candidates and read their profiles.
+            </div>
+          </li>
+          <li>
+            <span class="step-num">04</span>
+            <div>
+              <strong>Cast your vote</strong> — one click, permanently recorded.
+            </div>
+          </li>
+          <li>
+            <span class="step-num">05</span>
+            <div>
+              <strong>Track results</strong> as they come in on the live results page.
+            </div>
+          </li>
+        </ol>
+      </div>
+      <div class="col-md-6 text-center">
+        <div class="how-illustration">
+          <i class="bi bi-card-checklist"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
