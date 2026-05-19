@@ -41,50 +41,6 @@ voting_system/
     ├── css/style.css       ← Complete design system
     └── js/main.js          ← UI enhancements
 ```
-
----
-
-## ⚙️ Setup & Installation
-
-### Prerequisites
-- Python 3.9 or higher
-- pip
-
-### Steps
-
-```bash
-# 1. Clone / download the project
-cd voting_system
-
-# 2. Create a virtual environment
-python -m venv venv
-
-# On Windows:
-venv\Scripts\activate
-
-# On macOS/Linux:
-source venv/bin/activate
-
-# 3. Install dependencies
-pip install -r requirements.txt
-
-# 4. Run the application
-python app.py
-```
-
-The app will be live at **http://127.0.0.1:5000**
-
----
-
-## 🔑 Default Admin Account
-
-| Field    | Value          |
-|----------|----------------|
-| Username | `admin`        |
-| Password | `Admin@123`    |
-
-> ⚠️ Change this in production! Edit `_seed_admin()` in `app.py`.
-
 ---
 
 ## ✅ Features
