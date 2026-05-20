@@ -81,3 +81,7 @@ def _seed_admin():
 if __name__ == "__main__":
     app = create_app()
     app.run(debug=False)
+
+    db.init_app(app)
+    with app.app_context():
+        db.create_all()
