@@ -77,6 +77,7 @@ def _seed_admin():
         db.session.commit()
         print("✅  Default admin created  →  admin / Admin@123")
 
+from models import User, Candidate, Vote
 
 if __name__ == "__main__":
     app = create_app()
