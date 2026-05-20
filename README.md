@@ -1,141 +1,349 @@
 # 🗳️ VoteSecure — Online Voting System
 
-A complete, beginner-friendly Online Voting System built with **Flask**, **SQLite**, and **Bootstrap 5**.  
-Designed as a learning project for CS students — structured like a real-world application.
+A secure and modular Online Voting System developed using **Flask**, **PostgreSQL**, and **Bootstrap 5**.  
+This project demonstrates the implementation of authentication, role-based access control, database management, and responsive user interface design in a real-world web application environment.
+
+The system allows registered users to cast a single vote securely while providing administrators with tools to manage candidates, monitor voter participation, and view election results in real time.
 
 ---
 
-## 📁 Project Structure
+# 📌 Table of Contents
 
-```
+- [Project Overview](#-project-overview)
+- [Key Features](#-key-features)
+- [Technology Stack](#-technology-stack)
+- [Project Architecture](#-project-architecture)
+- [Database Design](#-database-design)
+- [Installation and Setup](#-installation-and-setup)
+- [Application Routes](#-application-routes)
+- [System Security](#-system-security)
+- [Usage Guide](#-usage-guide)
+- [Screenshots / Demo](#-screenshots--demo)
+- [Learning Outcomes](#-learning-outcomes)
+- [Future Improvements](#-future-improvements)
+- [Conclusion](#-conclusion)
+- [License](#-license)
+
+---
+
+# 📖 Project Overview
+
+VoteSecure is a web-based voting platform designed for academic and learning purposes. The application simulates a real-world election system where authenticated users can vote for candidates, and administrators can manage election operations through a dedicated dashboard.
+
+The project emphasizes:
+
+- Secure authentication
+- Database integrity
+- Role-based authorization
+- Modular Flask application structure
+- Clean and responsive UI design
+
+---
+
+# ✨ Key Features
+
+## User Authentication
+
+- User registration with email and password
+- Secure login/logout functionality
+- Password hashing using PBKDF2 with SHA-256
+
+## Voting System
+
+- One vote allowed per registered user
+- Real-time vote counting and result display
+- Database-level vote validation
+
+## Admin Dashboard
+
+- Add, edit, and delete candidates
+- Monitor voter participation
+- View election statistics and live results
+
+## User Experience
+
+- Responsive Bootstrap 5 interface
+- Flash notifications for user feedback
+- Mobile-friendly design
+
+## Security Features
+
+- Session-based authentication
+- Protected admin and voter routes
+- Database constraints to prevent duplicate voting
+
+---
+
+# 🛠️ Technology Stack
+
+| Technology | Purpose |
+|------------|----------|
+| Python | Backend programming language |
+| Flask 3.0 | Web framework |
+| Flask-SQLAlchemy | ORM and database management |
+| PostgreSQL | Relational database |
+| Bootstrap 5 | Frontend styling and responsive UI |
+| Jinja2 | HTML templating engine |
+| Werkzeug Security | Password hashing and authentication |
+
+---
+
+# 🏗️ Project Architecture
+
+```text
 voting_system/
 │
-├── app.py                  ← Main Flask app (factory function)
-├── database.py             ← SQLAlchemy db instance
-├── models.py               ← User, Candidate, Vote models
-├── requirements.txt        ← Python dependencies
+├── app.py
+├── database.py
+├── models.py
+├── requirements.txt
 │
 ├── routes/
 │   ├── __init__.py
-│   ├── main.py             ← Public landing page
-│   ├── auth.py             ← Register / Login / Logout
-│   ├── admin.py            ← Admin dashboard & candidate management
-│   └── voter.py            ← Voter dashboard, cast vote, results
+│   ├── main.py
+│   ├── auth.py
+│   ├── admin.py
+│   └── voter.py
 │
 ├── templates/
-│   ├── base.html           ← Shared layout (navbar, flash, footer)
-│   ├── index.html          ← Landing page
+│   ├── base.html
+│   ├── index.html
 │   ├── auth/
-│   │   ├── login.html
-│   │   └── register.html
 │   ├── admin/
-│   │   ├── dashboard.html
-│   │   ├── candidate_form.html
-│   │   ├── results.html
-│   │   └── voters.html
 │   └── voter/
-│       ├── dashboard.html
-│       └── results.html
 │
 └── static/
-    ├── css/style.css       ← Complete design system
-    └── js/main.js          ← UI enhancements
+    ├── css/style.css
+    └── js/main.js
 ```
----
-
-## ✅ Features
-
-| Feature                  | Details                                                |
-|--------------------------|--------------------------------------------------------|
-| **User Registration**    | Username + email + bcrypt-hashed password              |
-| **User Login / Logout**  | Session-based authentication                           |
-| **Admin Panel**          | Separate admin interface, seeded on first run          |
-| **Candidate Management** | Add, edit, delete candidates (can't delete if voted)   |
-| **One Vote Per User**    | Enforced at both application AND database level        |
-| **Live Results**         | Animated bar chart with vote counts and percentages    |
-| **Voter Overview**       | Admin can see all voters and their voting status       |
-| **Flash Messages**       | Success / error / info notifications throughout        |
-| **Responsive UI**        | Bootstrap 5 — works on mobile and desktop              |
-| **Session Handling**     | Secure server-side sessions with Flask's secret key    |
-| **Error Handling**       | Input validation with clear, user-friendly messages    |
 
 ---
 
-## 🗺️ URL Routes
+# 🗄️ Database Design
 
-### Public
-| Route         | Description        |
-|---------------|--------------------|
-| `GET /`       | Landing page       |
-| `GET/POST /auth/register` | User registration |
-| `GET/POST /auth/login`    | User login        |
-| `GET /auth/logout`        | Logout            |
+The system uses three primary database models:
 
-### Voter (login required)
-| Route                  | Description           |
-|------------------------|-----------------------|
-| `GET /voter/dashboard` | View candidates, vote |
-| `POST /voter/vote`     | Cast a vote           |
-| `GET /voter/results`   | View live results     |
+| Model | Description |
+|--------|-------------|
+| User | Stores voter and administrator information |
+| Candidate | Stores candidate details |
+| Vote | Stores voting records and enforces one vote per user |
 
-### Admin (admin login required)
-| Route                              | Description             |
-|------------------------------------|-------------------------|
-| `GET /admin/dashboard`             | Stats + candidate table |
-| `GET/POST /admin/candidates/add`   | Add a candidate         |
-| `GET/POST /admin/candidates/<id>/edit` | Edit candidate      |
-| `POST /admin/candidates/<id>/delete`   | Delete candidate    |
-| `GET /admin/results`               | Full election tally     |
-| `GET /admin/voters`                | All registered voters   |
+## Relationships
+
+- One user can cast only one vote
+- One candidate can receive multiple votes
+- Votes are linked using foreign key relationships
 
 ---
 
-## 🔒 Security Notes
+# ⚙️ Installation and Setup
 
-- Passwords hashed with **Werkzeug's** `generate_password_hash` (PBKDF2 / SHA-256).
-- One-vote-per-user enforced by a **UNIQUE constraint** on `votes.user_id` (database level) + application-level check.
-- Admin routes protected by `@admin_required` decorator.
-- Voter routes protected by `@login_required` decorator.
-- Change `SECRET_KEY` via environment variable in production.
+## Prerequisites
 
----
+Ensure the following software is installed:
 
-## 🧑‍💻 How to Use
-
-### As Admin
-1. Go to `/auth/login` and sign in as `admin / Admin@123`
-2. Add candidates via **Dashboard → Add Candidate**
-3. Monitor votes in real time at **Results**
-4. See voter participation at **Voters**
-
-### As a Voter
-1. Register at `/auth/register`
-2. Log in and see all candidates
-3. Select one and click **Submit My Vote**
-4. View live results after voting
+- Python 3.10 or higher
+- PostgreSQL
+- pip (Python package manager)
+- Git (optional)
 
 ---
 
-## 🎓 Learning Objectives
+## Step 1 — Clone the Repository
 
-After studying this project, you will understand:
-
-- **Flask Blueprints** — how to split a Flask app into logical modules
-- **SQLAlchemy ORM** — defining models, relationships, and queries
-- **Session Management** — storing user state securely
-- **Password Hashing** — why plain-text passwords are dangerous
-- **Decorator Patterns** — building `@login_required` / `@admin_required`
-- **Flash Messages** — giving feedback without JavaScript
-- **Template Inheritance** — Jinja2 `extends` / `block` system
-- **Database Constraints** — enforcing business rules at the DB level
+```bash
+git clone https://github.com/your-username/votesecure.git
+cd votesecure
+```
 
 ---
 
-## 🛠️ Built With
+## Step 2 — Create a Virtual Environment
 
-- [Flask 3.0](https://flask.palletsprojects.com/)
-- [Flask-SQLAlchemy](https://flask-sqlalchemy.palletsprojects.com/)
-- [SQLite](https://sqlite.org/)
-- [Bootstrap 5](https://getbootstrap.com/)
-- [Bootstrap Icons](https://icons.getbootstrap.com/)
-- [Google Fonts — Syne & DM Sans](https://fonts.google.com/)
+### Windows
+
+```bash
+python -m venv venv
+venv\Scripts\activate
+```
+
+### Linux / macOS
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
+---
+
+## Step 3 — Install Dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+## Step 4 — Configure PostgreSQL Database
+
+Create a PostgreSQL database and update the database URI in your Flask configuration.
+
+Example configuration:
+
+```python
+SQLALCHEMY_DATABASE_URI = "postgresql://username:password@localhost/votesecure"
+```
+
+---
+
+## Step 5 — Run the Application
+
+```bash
+python app.py
+```
+
+The application will start on:
+
+```text
+http://127.0.0.1:5000
+```
+
+---
+
+# 🌐 Application Routes
+
+## Public Routes
+
+| Route | Description |
+|--------|-------------|
+| `/` | Landing page |
+| `/auth/register` | User registration |
+| `/auth/login` | User login |
+| `/auth/logout` | User logout |
+
+---
+
+## Voter Routes
+
+| Route | Description |
+|--------|-------------|
+| `/voter/dashboard` | View candidates and vote |
+| `/voter/vote` | Submit vote |
+| `/voter/results` | View election results |
+
+---
+
+## Admin Routes
+
+| Route | Description |
+|--------|-------------|
+| `/admin/dashboard` | Admin dashboard |
+| `/admin/candidates/add` | Add candidate |
+| `/admin/candidates/<id>/edit` | Edit candidate |
+| `/admin/candidates/<id>/delete` | Delete candidate |
+| `/admin/results` | View complete election results |
+| `/admin/voters` | View registered voters |
+
+---
+
+# 🔒 System Security
+
+The application incorporates several security practices commonly used in web applications:
+
+- Passwords are hashed using Werkzeug security utilities
+- User sessions are securely managed through Flask sessions
+- Administrative routes are protected using custom decorators
+- Duplicate voting is prevented using:
+  - Application-level validation
+  - Database-level unique constraints
+- Sensitive configuration values should be stored using environment variables
+
+---
+
+# 👨‍💻 Usage Guide
+
+## Administrator Access
+
+Administrator accounts can manage candidates, monitor voters, and access election statistics through the admin dashboard.
+
+### Administrator Capabilities
+
+- Manage election candidates
+- Monitor registered voters
+- View live election statistics
+- Track voting participation
+
+---
+
+## Voter Access
+
+### Steps for Voting
+
+1. Register a new account
+2. Log in to the system
+3. Open the voter dashboard
+4. Select a candidate
+5. Submit the vote
+6. View live election results
+
+---
+
+# 🖼️ Screenshots / Demo
+
+Add screenshots of the following pages here:
+
+- Landing Page
+- Login & Registration
+- Voter Dashboard
+- Admin Dashboard
+- Live Results Page
+
+Example:
+
+```markdown
+![Landing Page](screenshots/home.png)
+```
+
+---
+
+# 🎓 Learning Outcomes
+
+This project demonstrates practical understanding of:
+
+- Flask Blueprints and modular application design
+- SQLAlchemy ORM relationships and queries
+- Authentication and authorization systems
+- Session management in web applications
+- Password hashing and web security
+- Database constraints and integrity enforcement
+- Jinja2 template inheritance
+- Responsive frontend development using Bootstrap 5
+- PostgreSQL database integration and management
+
+---
+
+# 🚀 Future Improvements
+
+Possible enhancements for future versions include:
+
+- Email verification system
+- OTP-based authentication
+- Election scheduling and deadlines
+- Graphical analytics dashboard
+- REST API integration
+- Docker container deployment
+- MySQL database support
+- Role-based permission management
+
+---
+
+# 📌 Conclusion
+
+VoteSecure is a structured and secure online voting application developed to demonstrate full-stack web development concepts using Flask. The project combines backend logic, database design, authentication, and frontend responsiveness into a single practical system suitable for academic learning and portfolio demonstration.
+
+---
+
+# 📄 License
+
+This project is intended for educational and academic purposes only.
