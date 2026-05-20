@@ -46,7 +46,7 @@ The project emphasizes:
 
 - User registration with email and password
 - Secure login/logout functionality
-- Password hashing using PBKDF2 with SHA-256
+- Password using hashing
 
 ## Voting System
 
@@ -137,78 +137,6 @@ The system uses three primary database models:
 
 ---
 
-# ⚙️ Installation and Setup
-
-## Prerequisites
-
-Ensure the following software is installed:
-
-- Python 3.10 or higher
-- PostgreSQL
-- pip (Python package manager)
-- Git (optional)
-
----
-
-## Step 1 — Clone the Repository
-
-```bash
-git clone https://github.com/your-username/votesecure.git
-cd votesecure
-```
-
----
-
-## Step 2 — Create a Virtual Environment
-
-### Windows
-
-```bash
-python -m venv venv
-venv\Scripts\activate
-```
-
-### Linux / macOS
-
-```bash
-python3 -m venv venv
-source venv/bin/activate
-```
-
----
-
-## Step 3 — Install Dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
----
-
-## Step 4 — Configure PostgreSQL Database
-
-Create a PostgreSQL database and update the database URI in your Flask configuration.
-
-Example configuration:
-
-```python
-SQLALCHEMY_DATABASE_URI = "postgresql://username:password@localhost/votesecure"
-```
-
----
-
-## Step 5 — Run the Application
-
-```bash
-python app.py
-```
-
-The application will start on:
-
-```text
-http://127.0.0.1:5000
-```
-
 ---
 
 # 🌐 Application Routes
@@ -289,22 +217,6 @@ Administrator accounts can manage candidates, monitor voters, and access electio
 
 ---
 
-# 🖼️ Screenshots / Demo
-
-Add screenshots of the following pages here:
-
-- Landing Page
-- Login & Registration
-- Voter Dashboard
-- Admin Dashboard
-- Live Results Page
-
-Example:
-
-```markdown
-![Landing Page](screenshots/home.png)
-```
-
 ---
 
 # 🎓 Learning Outcomes
@@ -323,20 +235,6 @@ This project demonstrates practical understanding of:
 
 ---
 
-# 🚀 Future Improvements
-
-Possible enhancements for future versions include:
-
-- Email verification system
-- OTP-based authentication
-- Election scheduling and deadlines
-- Graphical analytics dashboard
-- REST API integration
-- Docker container deployment
-- MySQL database support
-- Role-based permission management
-
----
 
 # 📌 Conclusion
 
