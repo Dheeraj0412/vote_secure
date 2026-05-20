@@ -5,6 +5,9 @@ Defines three tables:
   • User      – registered voters + admin accounts
   • Candidate – people standing for election
   • Vote      – immutable ballot records
+
+PostgreSQL-compatible: uses Text instead of String where length is
+unpredictable, and adds explicit indexes for common query patterns.
 """
 
 from database import db
@@ -15,9 +18,9 @@ class User(db.Model):
     __tablename__ = "users"
 
     id         = db.Column(db.Integer, primary_key=True)
-    username   = db.Column(db.String(80),  unique=True, nullable=False)
-    email      = db.Column(db.String(120), unique=True, nullable=False)
-    password   = db.Column(db.String(256), nullable=False)          # bcrypt hash
+    username   = db.Column(db.String(80),  unique=True, nullable=False, index=True)
+    email      = db.Column(db.String(120), unique=True, nullable=False, index=True)
+    password   = db.Column(db.String(256), nullable=False)   # werkzeug hash
     is_admin   = db.Column(db.Boolean, default=False, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
@@ -55,8 +58,10 @@ class Vote(db.Model):
     __tablename__ = "votes"
 
     id           = db.Column(db.Integer, primary_key=True)
+    # unique=True on user_id enforces one-vote-per-user at the database level.
+    # This constraint works in both SQLite and PostgreSQL.
     user_id      = db.Column(db.Integer, db.ForeignKey("users.id"),      nullable=False, unique=True)
-    candidate_id = db.Column(db.Integer, db.ForeignKey("candidates.id"), nullable=False)
+    candidate_id = db.Column(db.Integer, db.ForeignKey("candidates.id"), nullable=False, index=True)
     cast_at      = db.Column(db.DateTime, default=datetime.utcnow)
 
     voter     = db.relationship("User",      back_populates="vote")

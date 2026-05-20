@@ -87,6 +87,8 @@ def login():
         session["user_id"]  = user.id
         session["username"] = user.username
         session["is_admin"] = user.is_admin
+        # Mark session as permanent so it survives across Render restarts
+        session.permanent = True
 
         flash(f"Welcome back, {user.username}!", "success")
         if user.is_admin:

@@ -36,7 +36,7 @@ def login_required(f):
 @voter_bp.route("/dashboard")
 @login_required
 def dashboard():
-    user       = User.query.get(session["user_id"])
+    user       = db.session.get(User, session["user_id"])
     candidates = Candidate.query.order_by(Candidate.name).all()
     return render_template("voter/dashboard.html",
                            user=user, candidates=candidates)
@@ -46,7 +46,7 @@ def dashboard():
 @voter_bp.route("/vote", methods=["POST"])
 @login_required
 def cast_vote():
-    user = User.query.get(session["user_id"])
+    user = db.session.get(User, session["user_id"])
 
     # Double-check at application layer
     if user.has_voted():
@@ -58,7 +58,7 @@ def cast_vote():
         flash("Please select a candidate.", "danger")
         return redirect(url_for("voter.dashboard"))
 
-    candidate = Candidate.query.get(candidate_id)
+    candidate = db.session.get(Candidate, int(candidate_id))
     if not candidate:
         flash("Invalid candidate selected.", "danger")
         return redirect(url_for("voter.dashboard"))

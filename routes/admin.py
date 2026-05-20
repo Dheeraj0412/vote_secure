@@ -80,7 +80,12 @@ def add_candidate():
 @admin_bp.route("/candidates/<int:cid>/edit", methods=["GET", "POST"])
 @admin_required
 def edit_candidate(cid):
-    candidate = Candidate.query.get_or_404(cid)
+    # db.session.get() is the SQLAlchemy 2.x recommended replacement for
+    # the deprecated Model.query.get()
+    candidate = db.session.get(Candidate, cid)
+    if candidate is None:
+        flash("Candidate not found.", "danger")
+        return redirect(url_for("admin.dashboard"))
 
     if request.method == "POST":
         candidate.name        = request.form.get("name", "").strip()
@@ -104,7 +109,10 @@ def edit_candidate(cid):
 @admin_bp.route("/candidates/<int:cid>/delete", methods=["POST"])
 @admin_required
 def delete_candidate(cid):
-    candidate = Candidate.query.get_or_404(cid)
+    candidate = db.session.get(Candidate, cid)
+    if candidate is None:
+        flash("Candidate not found.", "danger")
+        return redirect(url_for("admin.dashboard"))
 
     if candidate.votes:
         flash("Cannot delete a candidate who has already received votes.", "warning")
