@@ -1,3 +1,5 @@
+**Academic Project**<br>Developed during my 2nd year of Computer Science in collaboration with a teammate and with the assistance of AI tools. This project was created as a practical learning experience to explore full-stack web development using Flask, PostgreSQL, and Bootstrap.
+
 # 🗳️ VoteSecure — Online Voting System
 
 A secure and modular Online Voting System developed using **Flask**, **PostgreSQL**, and **Bootstrap 5**.  
